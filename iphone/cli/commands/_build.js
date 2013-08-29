@@ -2807,6 +2807,19 @@ build.prototype = {
 					// copy, analyze, and minify resources
 					this.compileResources(path.join(this.projectDir, 'Resources'), this.xcodeAppDir, next);
 				},
+				// platform-specific files overwrite those in the main directory
+				function (next) {
+					this.compileResources(path.join(this.projectDir, 'Resources', 'ios'), this.xcodeAppDir, next);
+				},
+				function (next) {
+					this.compileResources(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir, next);
+				},
+				function (next) {
+					this.compileResources(path.join(this.projectDir, 'platform', 'ios'), this.xcodeAppDir, next);
+				},
+				function (next) {
+					this.compileResources(path.join(this.projectDir, 'platform', 'iphone'), this.xcodeAppDir, next);
+				},
 				function (next) {
 					// for each module, copying modules images, if any
 					if (this.tiModules.length) {
