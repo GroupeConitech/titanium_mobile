@@ -1232,6 +1232,7 @@ build.prototype = {
 			name = iconName + name;
 			if (afs.exists(this.projectDir, 'Resources', name) ||
 				afs.exists(this.projectDir, 'Resources', 'iphone', name) ||
+				afs.exists(this.projectDir, 'Resources', 'ios', name) ||
 				afs.exists(this.projectDir, 'Resources', this.platformName, name)) {
 				if (plist.CFBundleIconFiles.indexOf(name) == -1) {
 					plist.CFBundleIconFiles.push(name);
