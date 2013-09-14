@@ -2193,8 +2193,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         //if there are layers which do not belong to subviews (backgroundGradient)
         //So ensure the subview layer goes at the right index
         //See TIMOB-11586 for fail case
-        UIView *sibling = [[ourView subviews] objectAtIndex:result-1];
-        [ourView insertSubview:childView aboveSubview:sibling];
+		int subviewCount = [[ourView subviews] count];
+		int lastIndex = result - 1; // always > 0 because result != 0
+		if (lastIndex < subviewCount) // avoid crash... don't know how this case can happen (result > subview count) but it does... maybe a subview is deleted somehow somewhere while 'result' is computed?
+		{
+    	    UIView *sibling = [[ourView subviews] objectAtIndex:lastIndex];
+	        [ourView insertSubview:childView aboveSubview:sibling];
+		}
     }
 }
 
