@@ -1427,13 +1427,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 
 -(void)dealloc
 {
+	// Dealing with children is in _destroy, which is called by super dealloc.
+	// Call super dealloc before freeing the locks because they're used in _destroy.
+	[super dealloc];
+	
 	RELEASE_TO_NIL(pendingAdds);
 	RELEASE_TO_NIL(destroyLock);
 	pthread_rwlock_destroy(&childrenLock);
-	
-	//Dealing with children is in _destroy, which is called by super dealloc.
-	
-	[super dealloc];
 }
 
 -(BOOL)retainsJsObjectForKey:(NSString *)key
