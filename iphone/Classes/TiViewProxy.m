@@ -270,12 +270,13 @@
 -(void)removeAllChildren:(id)arg
 {
 	ENSURE_UI_THREAD_1_ARG(arg);
-    
-    
-	if (children != nil) {
+	
+	
+	if ([self children] != nil) {
+		NSArray* array = [self children]; // Make a copy before taking the lock
 		pthread_rwlock_wrlock(&childrenLock);
 
-		for (TiViewProxy* child in children)
+		for (TiViewProxy* child in array)
 		{
 			if ([pendingAdds containsObject:child])
 			{
