@@ -11,6 +11,17 @@
 #import "TiBindingRunLoop.h"
 #import <pthread.h>
 
+#define USE_RWLOCK_WRAPPER
+#ifdef USE_RWLOCK_WRAPPER
+#import "RWLock.h"
+#define pthread_rwlock_t RWLock*
+#define pthread_rwlock_init(LOCK, UNUSED) *LOCK = [[RWLock alloc] init];
+#define pthread_rwlock_destroy(LOCK) [*LOCK release]
+#define pthread_rwlock_rdlock(LOCK) [*LOCK lockRead]
+#define pthread_rwlock_wrlock(LOCK) [*LOCK lockWrite]
+#define pthread_rwlock_unlock(LOCK) [*LOCK unlock]
+#endif
+
 @class KrollBridge;
 @class KrollObject;
 
