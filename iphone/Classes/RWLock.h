@@ -13,6 +13,7 @@
 {
 @private
 	pthread_rwlock_t lock;
+	NSMutableDictionary* threadLockStates;
 }
 
 - (void)lockRead;
