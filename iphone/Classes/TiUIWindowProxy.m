@@ -376,9 +376,9 @@
 	}
 }
 
--(void)setRightNavButton:(id)proxy withObject:(id)properties
+-(void)setRightNavButton:(id)args withObject:(id)properties
 {
-	ENSURE_UI_THREAD_WITH_OBJ(setRightNavButton,proxy,properties);
+	ENSURE_UI_THREAD_WITH_OBJ(setRightNavButton,args,properties);
     if (properties == nil) {
         properties = [self valueForKey:@"rightNavSettings"];
     }
@@ -386,47 +386,80 @@
         [self setValue:properties forKey:@"rightNavSettings"];
     }
 	
-	if (controller!=nil && 
-		[controller navigationController] != nil)
+	if (controller != nil && [controller navigationController] != nil)
 	{
-		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
-		[self replaceValue:proxy forKey:@"rightNavButton" notification:NO];
-		if (proxy==nil || [proxy supportsNavBarPositioning])
+		if (IS_NULL_OR_NIL(args))
 		{
-			// detach existing one
-			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
+			args = nil;
+		}
+		else if (![args isKindOfClass:[NSArray class]] && ![args isKindOfClass:[TiViewProxy class]])
+		{
+			args = nil;
+			[self replaceValue:nil forKey:@"rightNavButton" notification:NO];
+			NSString* msg = [NSString stringWithFormat:@"expected: %@ or %@, was: %@",
+							 CLASS2JS([TiViewProxy class]),
+							 CLASS2JS([NSArray class]),
+							 OBJTYPE2JS(args)];
+			THROW_INVALID_ARG(msg);
+		}
+		
+		[self replaceValue:args forKey:@"rightNavButton" notification:NO];
+		
+		if ([args isKindOfClass:[TiViewProxy class]])
+			args = [NSArray arrayWithObject:args];
+		
+		NSMutableArray* barButtons = [NSMutableArray arrayWithCapacity:[args count]];
+		
+		// Filter out invalid items
+		if (args != nil)
+		{
+			// Items are displayed from right to left. Process the array in reverse order so that index 0 is the leftmost item
+			for (id item in [args reverseObjectEnumerator])
+			{
+				if ([item isKindOfClass:[TiViewProxy class]] && [item supportsNavBarPositioning])
+				{
+					[barButtons addObject:[item barButtonItem]];
+				}
+				else
+				{
+					NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar", item];
+					THROW_INVALID_ARG(msg);
+				}
+			}
+		}
+		
+		// Detach existing ones
+		NSArray* oldItems = controller.navigationItem.rightBarButtonItems;
+		for (id item in oldItems)
+		{
 			if ([item respondsToSelector:@selector(proxy)])
 			{
 				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
 				[p removeBarButtonView];
 			}
-			if (proxy!=nil)
-			{
-				// add the new one
-                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-                [controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
-                [self updateBarImage];
-			}
-			else 
-			{
-				controller.navigationItem.rightBarButtonItem = nil;
-			}
+		}
+		
+		// Add new ones
+		if ([barButtons count] > 0)
+		{
+			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+			[controller.navigationItem setRightBarButtonItems:barButtons animated:animated];
+			[self updateBarImage];
 		}
 		else
 		{
-			NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
-			THROW_INVALID_ARG(msg);
+			controller.navigationItem.rightBarButtonItems = nil;
 		}
 	}
 	else 
 	{
-		[self replaceValue:[[[TiComplexValue alloc] initWithValue:proxy properties:properties] autorelease] forKey:@"rightNavButton" notification:NO];
+		[self replaceValue:[[[TiComplexValue alloc] initWithValue:args properties:properties] autorelease] forKey:@"rightNavButton" notification:NO];
 	}
 }
 
--(void)setLeftNavButton:(id)proxy withObject:(id)properties
+-(void)setLeftNavButton:(id)args withObject:(id)properties
 {
-	ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButton,proxy,properties);
+	ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButton,args,properties);
     if (properties == nil) {
         properties = [self valueForKey:@"leftNavSettings"];
     }
@@ -436,39 +469,73 @@
     
 	if (controller!=nil && [controller navigationController] != nil)
 	{
-		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
-		[self replaceValue:proxy forKey:@"leftNavButton" notification:NO];
-		if (proxy==nil || [proxy supportsNavBarPositioning])
+		controller.navigationItem.leftItemsSupplementBackButton = YES;
+		
+		if (IS_NULL_OR_NIL(args))
 		{
-			// detach existing one
-			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
+			args = nil;
+		}
+		else if (![args isKindOfClass:[NSArray class]] && ![args isKindOfClass:[TiViewProxy class]])
+		{
+			args = nil;
+			[self replaceValue:nil forKey:@"leftNavButton" notification:NO];
+			NSString* msg = [NSString stringWithFormat:@"expected: %@ or %@, was: %@",
+							 CLASS2JS([TiViewProxy class]),
+							 CLASS2JS([NSArray class]),
+							 OBJTYPE2JS(args)];
+			THROW_INVALID_ARG(msg);
+		}
+		
+		[self replaceValue:args forKey:@"leftNavButton" notification:NO];
+		
+		if ([args isKindOfClass:[TiViewProxy class]])
+			args = [NSArray arrayWithObject:args];
+		
+		NSMutableArray* barButtons = [NSMutableArray arrayWithCapacity:[args count]];
+		
+		// Filter out invalid items
+		if (args != nil)
+		{
+			for (id item in args)
+			{
+				if ([item isKindOfClass:[TiViewProxy class]] && [item supportsNavBarPositioning])
+				{
+					[barButtons addObject:[item barButtonItem]];
+				}
+				else
+				{
+					NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar", item];
+					THROW_INVALID_ARG(msg);
+				}
+			}
+		}
+		
+		// Detach existing ones
+		NSArray* oldItems = controller.navigationItem.leftBarButtonItems;
+		for (id item in oldItems)
+		{
 			if ([item respondsToSelector:@selector(proxy)])
 			{
 				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
 				[p removeBarButtonView];
 			}
-			controller.navigationItem.leftBarButtonItem = nil;			
-			if (proxy!=nil)
-			{
-				// add the new one
-                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-                [controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
-                [self updateBarImage];
-			}
-			else 
-			{
-				controller.navigationItem.leftBarButtonItem = nil;
-			}
+		}
+		
+		// Add new ones
+		if ([barButtons count] > 0)
+		{
+			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+			[controller.navigationItem setLeftBarButtonItems:barButtons animated:animated];
+			[self updateBarImage];
 		}
 		else
 		{
-			NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
-			THROW_INVALID_ARG(msg);
+			controller.navigationItem.leftBarButtonItems = nil;
 		}
 	}
 	else
 	{
-		[self replaceValue:[[[TiComplexValue alloc] initWithValue:proxy properties:properties] autorelease] forKey:@"leftNavButton" notification:NO];
+		[self replaceValue:[[[TiComplexValue alloc] initWithValue:args properties:properties] autorelease] forKey:@"leftNavButton" notification:NO];
 	}
 }
 
