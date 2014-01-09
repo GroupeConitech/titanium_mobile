@@ -254,7 +254,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						callback(err);
 					} else {
 						this.devices = emus;
-						callback(null, targetDeviceCache[target] = emus.map(function (emu) {
+						callback(null, this.devices = targetDeviceCache[target] = emus.map(function (emu) {
 							// normalize the emulator info
 							if (emu.type == 'avd') {
 								return {
