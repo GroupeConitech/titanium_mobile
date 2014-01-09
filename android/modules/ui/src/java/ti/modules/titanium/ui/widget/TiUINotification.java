@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -95,5 +96,10 @@ public class TiUINotification extends TiUIView
 
 	public void hide(KrollDict options) {
 		toast.cancel();
+	}
+	
+	public boolean isShown()
+	{
+		return toast != null && toast.getView().isShown();
 	}
 }

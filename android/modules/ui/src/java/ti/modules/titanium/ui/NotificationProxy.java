@@ -48,4 +48,11 @@ public class NotificationProxy extends TiViewProxy
 	{
 		return "Ti.UI.Notification";
 	}
+	
+	@Kroll.getProperty(name = "isShown")
+	public boolean isShown()
+	{
+		TiUINotification n = (TiUINotification) getOrCreateView();
+		return n.isShown();
+	}
 }
