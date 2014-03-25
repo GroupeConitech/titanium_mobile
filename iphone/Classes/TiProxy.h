@@ -11,7 +11,9 @@
 #import "TiBindingRunLoop.h"
 #import <pthread.h>
 
-#define USE_RWLOCK_WRAPPER
+// Disable RWLock workaround because the problem seem to be fixed now
+// TODO: complete removal of RWLock if no more problem are reported
+//#define USE_RWLOCK_WRAPPER
 #ifdef USE_RWLOCK_WRAPPER
 #import "RWLock.h"
 #define pthread_rwlock_t RWLock*
